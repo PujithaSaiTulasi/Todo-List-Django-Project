@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .task-section {
+            margin-bottom: 40px;
+        }
+        .task-section h2 {
+            margin-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .task-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .task-item {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .completed .task-item {
+            background-color: #e0ffe0;
+        }
+        .form-section {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Form to Create New Task -->
+    <div class="form-section">
+        <h2>Create New Task</h2>
+        <form action="{% url 'create_task' %}" method="POST">
+            {% csrf_token %}
+            <input type="text" name="title" placeholder="Task Title" required>
+            <textarea name="description" placeholder="Task Description" required></textarea>
+            <input type="datetime-local" name="date" required>
+            <button type="submit">Add Task</button>
+        </form>
+    </div>
+
+    <div class="task-section yet-to-do">
+        <h2>Yet to Do</h2>
+        <ul class="task-list">
+            {% for task in yet_to_do_tasks %}
+                <li class="task-item">
+                    <strong>{{ task.title }}</strong><br>
+                    <small>{{ task.date }}</small><br>
+                    {{ task.description }}<br>
+                    <form action="{% url 'update_task' task.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="text" name="title" value="{{ task.title }}" required>
+                        <textarea name="description" required>{{ task.description }}</textarea>
+                        <input type="datetime-local" name="date" value="{{ task.date|date:'Y-m-d\TH:i' }}" required>
+                        <button type="submit">Update</button>
+                    </form>
+                    <form action="{% url 'mark_task_completed' task.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit">Mark as Completed</button>
+                    </form>
+                    <form action="{% url 'delete_task' task.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit">Delete</button>
+                    </form>
+                </li>
+            {% empty %}
+                <li>No tasks yet to do.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <div class="task-section completed">
+        <h2>Completed Tasks</h2>
+        <ul class="task-list">
+            {% for task in completed_tasks %}
+                <li class="task-item">
+                    <strong>{{ task.title }}</strong><br>
+                    <small>{{ task.date }}</small><br>
+                    {{ task.description }}<br>
+                    <form action="{% url 'update_task' task.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="text" name="title" value="{{ task.title }}" required>
+                        <textarea name="description" required>{{ task.description }}</textarea>
+                        <input type="datetime-local" name="date" value="{{ task.date|date:'Y-m-d\TH:i' }}" required>
+                        <button type="submit">Update</button>
+                    </form>
+                    <form action="{% url 'delete_task' task.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit">Delete</button>
+                    </form>
+                </li>
+            {% empty %}
+                <li>No completed tasks.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
